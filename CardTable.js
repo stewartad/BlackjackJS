@@ -19,8 +19,7 @@ class CardTable extends Phaser.Scene {
     {
         this.load.image('bg', 'assets/background.png');
         this.load.spritesheet('cards', 'assets/cards.png', { frameWidth: this.cardSheetWidth, frameHeight: this.cardSheetHeight });
-        
-        this.load.spritesheet('balls', 'assets/balls.png', { frameWidth: 17, frameHeight: 17 });
+        this.load.image('cardback', 'assets/back.png');
     }
 
     create()
@@ -32,11 +31,10 @@ class CardTable extends Phaser.Scene {
         this.newGame.startGame();
 
         var cards = this.add.group();
-        var playerHand = this.newGame.getPlayerHand(0);
+        const playerHand = this.newGame.player.getHand();
+        const dealerHand = this.newGame.dealer.getHand();
 
-        this.add.image(70, 70, 'balls', 0);
-
-        // display player 0 hand
+        // display player hand
         for (var i = 0; i < playerHand.length; i++)
         {
             var x = i * this.cardSheetWidth * (this.cardScaleSmall + this.cardGap);
@@ -44,13 +42,39 @@ class CardTable extends Phaser.Scene {
             var newCard = new CardSprite(this, x + 71, 700, 'cards', playerHand[i]);
             var image = this.add.existing(newCard);
 
-            image.setInteractive();
+            //image.setInteractive();
 
-            image.on('clicked', this.onCardClick, this);
+            //image.on('clicked', this.onCardClick, this);
 
             image.setScale(this.cardScaleSmall);
 
-            this.input.setDraggable(image);
+            //this.input.setDraggable(image);
+
+            cards.add(image);
+        }
+
+        for (var i = 0; i < dealerHand.length; i++)
+        {
+            var x = i * this.cardSheetWidth * (this.cardScaleSmall + this.cardGap);
+
+            var newCard;
+            if (dealerHand[i].hidden)
+            {
+                newCard = this.add.sprite(x + 71, 200, 'cardback');
+            }
+            else
+            {
+                newCard = new CardSprite(this, x + 71, 200, 'cards', dealerHand[i]);
+            }
+            var image = this.add.existing(newCard);
+
+            //image.setInteractive();
+
+            //image.on('clicked', this.onCardClick, this);
+
+            image.setScale(this.cardScaleSmall);
+
+            //this.input.setDraggable(image);
 
             cards.add(image);
         }
@@ -94,7 +118,7 @@ class CardTable extends Phaser.Scene {
             card.off('clicked', this.onCardClick);
             card.input.enabled = false;
             card.setVisible(false);
-            this.newGame.playCard(this.newGame.players[0], card.card);
+            this.newGame.playCard(this.newGame.player, card.card);
             this.addToPile();
         }
         

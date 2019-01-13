@@ -19,6 +19,7 @@ class Card {
         this.suit = suit;
         this.name = this.getName();
         this.frameNum = this.getFrameNumber();
+        this.hidden = false;
     }
 
     getName()
@@ -120,6 +121,19 @@ class Player {
     }
 }
 
+// TODO: this should inherit from player class
+class Dealer {
+    constructor()
+    {
+        this.hand = new Hand;
+    }
+
+    getHand()
+    {
+        return this.hand.cardList;
+    }
+}
+
 class Hand {
     constructor()
     {
@@ -155,26 +169,22 @@ class GameState {
     constructor()
     {
         this.deck = new Deck();
-        this.players = [];
+        this.player = new Player();
+        this.dealer = new Dealer();
         this.pile = [];
     }
 
     /*
-     * Initializes the game state by creating 4 players and dealing out the deck to them
+     * Initializes the game state by dealing 2 card to the player and the dealer
      */
     startGame()
     {
-        for (var i = 0; i < 4; i++)
-        {
-            this.players[i] = new Player();
-        }
-
         this.deck.shuffle();
 
-        for (var i = 0; i < 52; i++)
-        {
-            this.players[i % 4].hand.addCard(this.deck.dealCard());
-        }
+        this.dealPlayer();
+        this.dealDealer(false);
+        this.dealPlayer();
+        this.dealDealer(true);
 
         // Debug Code
         // for (var i = 0; i < 4; i++)
@@ -184,9 +194,22 @@ class GameState {
 
     }
 
-    getPlayerHand(index)
+    dealPlayer()
     {
-        return this.players[index].getHand();
+        this.player.hand.addCard(this.deck.dealCard());
+    }
+
+    dealDealer(hidden)
+    {
+        const card = this.deck.dealCard();
+        if (hidden)
+            card.hidden = true;
+        this.dealer.hand.addCard(card);
+    }
+
+    getPlayerHand()
+    {
+        return this.players.getHand();
     }
 
     playCard(player, card)
